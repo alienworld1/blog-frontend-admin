@@ -8,6 +8,7 @@ const routes = [
     errorElement: <Pages.Error />,
   },
   { path: '/log-in', element: <Pages.Login /> },
+  { path: '/dashboard', element: <Pages.Dashboard /> },
 ];
 
 export default routes;
