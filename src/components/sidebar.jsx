@@ -6,11 +6,16 @@ function Sidebar() {
       <h1 className="text-3xl text-slate-50 font-medium">Blog Dashboard</h1>
 
       <ul className="flex flex-col list-none text-xl text-slate-50 flex-1 gap-2">
-        <li className="cursor-pointer hover:text-violet-300">All Posts</li>
+        <li className="cursor-pointer hover:text-violet-300">New Post</li>
         <li className="cursor-pointer hover:text-violet-300">
-          Published Posts
+          <Link to="/dashboard">All Posts</Link>
         </li>
-        <li className="cursor-pointer hover:text-violet-300">Private Posts</li>
+        <li className="cursor-pointer hover:text-violet-300">
+          <Link to="public">Public Posts</Link>
+        </li>
+        <li className="cursor-pointer hover:text-violet-300">
+          <Link to="private">Private Posts</Link>
+        </li>
       </ul>
       <Link
         to="/log-out"

@@ -2,6 +2,8 @@ import Pages from './pages';
 import { redirect } from 'react-router-dom';
 import { deleteToken, validateToken } from './tokenHandler';
 
+import PostList from './components/postlist';
+
 const authLoader = async () => {
   const isValidToken = await validateToken();
   if (isValidToken) {
@@ -37,6 +39,11 @@ const routes = [
       }
       return null;
     },
+    children: [
+      { index: true, element: <PostList mode="all" /> },
+      { path: 'public', element: <PostList mode="public" /> },
+      { path: 'private', element: <PostList mode="private" /> },
+    ],
   },
   {
     path: '/log-out',
