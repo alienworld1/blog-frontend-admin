@@ -1,11 +1,36 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { saveToken } from '../tokenHandler';
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    const response = await fetch('/api/auth/admin/log-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 403) {
+        setError('You are not allowed to access the dashboard.');
+      } else {
+        setError(responseData.message);
+      }
+      return;
+    }
+
+    saveToken(responseData.token);
+    navigate('/dashboard');
   };
 
   return (
@@ -71,6 +96,11 @@ function Login() {
             </div>
           </form>
         </div>
+        {error && (
+          <div className="bg-red-400 my-5 shadow sm:rounded-lg py-2 px-4 font-medium">
+            {error}
+          </div>
+        )}
       </div>
     </>
   );
