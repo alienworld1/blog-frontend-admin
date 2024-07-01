@@ -55,7 +55,13 @@ const routes = [
   {
     path: '/posts',
     loader: authLoader,
-    children: [{ path: 'create', element: <Pages.BlogForm /> }],
+    children: [
+      { path: 'create', element: <Pages.BlogForm update={false} /> },
+      {
+        path: ':postId',
+        element: <Pages.BlogForm update={true} />,
+      },
+    ],
   },
 ];
 

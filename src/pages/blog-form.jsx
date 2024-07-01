@@ -1,20 +1,44 @@
-import { useState } from 'react';
+import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
+
 import Sidebar from '../components/sidebar';
 import { getToken } from '../tokenHandler';
-import { Navigate } from 'react-router-dom';
 
-const BlogForm = () => {
+const BlogForm = ({ update }) => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const { postId } = useParams();
+
+  useEffect(() => {
+    if (!update) {
+      return;
+    }
+
+    fetch(`/api/posts/${postId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getToken(),
+      },
+    })
+      .then(post => post.json())
+      .then(post => {
+        setTitle(post.title);
+        setBody(post.body);
+        setIsPublic(post.isPublic);
+      })
+      .catch(() => setDone(true));
+  }, [postId, update]);
 
   const handleSubmit = async e => {
     e.preventDefault();
 
-    const response = await fetch('/api/posts', {
-      method: 'POST',
+    const response = await fetch(`/api/posts${update ? '/' + postId : ''}`, {
+      method: `${update ? 'PUT' : 'POST'}`,
       body: JSON.stringify({ title, body, isPublic }),
       headers: {
         'Content-Type': 'application/json',
@@ -25,9 +49,23 @@ const BlogForm = () => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      setError(responseData[0].msg);
+      setError(responseData[0]?.msg);
       return;
     }
+
+    setDone(true);
+  };
+
+  const handleDelete = async () => {
+    if (!update) return;
+
+    await fetch(`/api/posts/${postId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: getToken(),
+      },
+    });
 
     setDone(true);
   };
@@ -95,10 +133,23 @@ const BlogForm = () => {
               {error}
             </div>
           )}
+          {update && (
+            <button
+              type="button"
+              className="bg-red-600 hover:bg-red-400 text-black rounded-md focus:outline-none py-2 px-4 font-bold mt-4 active:bg-red-700"
+              onClick={handleDelete}
+            >
+              Delete Post
+            </button>
+          )}
         </form>
       </div>
     </main>
   );
+};
+
+BlogForm.propTypes = {
+  update: PropTypes.bool,
 };
 
 export default BlogForm;
