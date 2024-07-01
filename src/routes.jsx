@@ -6,16 +6,22 @@ import PostList from './components/postlist';
 
 const authLoader = async () => {
   const isValidToken = await validateToken();
-  if (isValidToken) {
-    return redirect('/dashboard');
+  if (!isValidToken) {
+    return redirect('/log-in');
   }
-  return redirect('/log-in');
+  return null;
 };
 
 const routes = [
   {
     path: '/',
-    loader: authLoader,
+    loader: async () => {
+      const isValidToken = await validateToken();
+      if (!isValidToken) {
+        return redirect('/log-in');
+      }
+      return redirect('/dashboard');
+    },
     errorElement: <Pages.Error />,
   },
   {
@@ -32,13 +38,7 @@ const routes = [
   {
     path: '/dashboard',
     element: <Pages.Dashboard />,
-    loader: async () => {
-      const isValidToken = await validateToken();
-      if (!isValidToken) {
-        return redirect('/log-in');
-      }
-      return null;
-    },
+    loader: authLoader,
     children: [
       { index: true, element: <PostList mode="all" /> },
       { path: 'public', element: <PostList mode="public" /> },
@@ -51,6 +51,11 @@ const routes = [
       deleteToken();
       return redirect('/log-in');
     },
+  },
+  {
+    path: '/posts',
+    loader: authLoader,
+    children: [{ path: 'create', element: <Pages.BlogForm /> }],
   },
 ];
 
